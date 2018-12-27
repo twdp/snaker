@@ -1,3 +1,4 @@
+github.com/Knetic/govaluate v3.0.0+incompatible h1:7o6+MAPhYTCF0+fdvoz1xDedhRb4f6s9Tn1Tt7/WTEg=
 github.com/Knetic/govaluate v3.0.0+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/astaxie/beego v1.11.1 h1:6DESefxW5oMcRLFRKi53/6exzup/IR6N4EzzS1n6CnQ=
 github.com/astaxie/beego v1.11.1/go.mod h1:i69hVzgauOPSw5qeyF4GVZhn7Od0yG5bbCGzmhbWxgQ=
@@ -22,6 +23,8 @@ github.com/lib/pq v1.0.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/mattn/go-sqlite3 v1.10.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+github.com/sbabiv/xml2map v0.0.0-20181110181602-2b709b353045 h1:vTi5n5VN12U8Jd2mygHZK+9NZRsq1cv+WN2HwxMtTOk=
+github.com/sbabiv/xml2map v0.0.0-20181110181602-2b709b353045/go.mod h1:lfLWTANdsSP8X8CqGtDcBA8sHOcdmd0RiN7QTb3Ee4g=
 github.com/siddontang/go v0.0.0-20180604090527-bdc77568d726/go.mod h1:3yhqj7WBBfRhbBlzyOC3gUxftwsU0u8gqevxwIHQpMw=
 github.com/siddontang/ledisdb v0.0.0-20181029004158-becf5f38d373/go.mod h1:mF1DpOSOUiJRMR+FDqaqu3EBqrybQtrDDszLUZ6oxPg=
 github.com/siddontang/rdb v0.0.0-20150307021120-fc89ed2e418d/go.mod h1:AMEsy7v5z92TR1JKMkLLoaOQk++LVnOKL3ScbJ8GNGA=
