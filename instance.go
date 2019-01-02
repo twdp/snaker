@@ -26,20 +26,20 @@ type IInstanceService interface {
 	Terminate(instanceId int64) error
 
 	// 流程实例强制终止
-	TerminateByOperator(instanceId int64, operator string)
+	TerminateByOperator(instanceId int64, operator string) error
 
 	// 唤醒历史流程实例
-	Resume(instanceId int64)
+	Resume(instanceId int64) error
 
 	// 更新流程实例
-	UpdateInstance(instance *entity.Instance)
+	UpdateInstance(instance *entity.Instance) error
 
 	// 更新抄送记录为已阅
-	UpdateCCStatus(instanceId int64, actors ...string)
+	UpdateCCStatus(instanceId int64, actors ...string) error
 
 	// 删除抄送记录
-	DeleteCCInstance(instanceId int64, actor string)
+	DeleteCCInstance(instanceId int64, actor string) error
 
 	// 级联删除所有数据
-	CascadeRemove(id int64)
+	CascadeRemove(id int64) error
 }

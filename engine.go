@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"tianwei.pro/snaker/cfg"
 	"tianwei.pro/snaker/core"
 	"tianwei.pro/snaker/entity"
 	"tianwei.pro/snaker/model"
@@ -19,9 +18,6 @@ const (
 )
 
 type SnakerEngine interface {
-
-	// 根据Configuration对象配置实现类
-	Configure(config *cfg.Configuration)
 
 	// 获取process服务
 	Process() *IProcessService
@@ -83,9 +79,6 @@ type SnakerEngine interface {
 // snakerEngine实现类
 type SnakerEngineImpl struct {
 
-	// 配置信息
-	configuration *cfg.Configuration
-
 	// 流程定义业务类
 	processService *IProcessService
 
@@ -102,14 +95,9 @@ type SnakerEngineImpl struct {
 	managerService *IManagerService
 }
 
-// 根据Configuration对象配置实现类
-func (s *SnakerEngineImpl) Configure(config *cfg.Configuration) {
-	s.configuration = config
-
-	c := config.Container
-	s.processService = c.GetByName(ProcessKey).(*IProcessService)
-	s.instanceService = c.GetByName(InstanceKey).(*IInstanceService)
-	s.taskService = c.GetByName(TaskKey).(*ITaskService)
+func NewEngine() SnakerEngine {
+	return &SnakerEngineImpl{
+	}
 }
 
 //
@@ -228,17 +216,17 @@ func (s *SnakerEngineImpl) ExecuteAndJumpTask(taskId int64, operator string, arg
 	} else if nil == execution {
 		return &list.List{}, nil
 	} else {
-		model :=  execution.Process.Model
-		if nil == model {
+		m :=  execution.Process.Model
+		if nil == m {
 			return nil, errors.New("当前任务未找到流程定义模型")
 		}
 		if nodeName == "" {
-			 if newTask, err := (*s.Task()).RejectTask(model, execution.Task); err != nil {
+			 if newTask, err := (*s.Task()).RejectTask(m, execution.Task); err != nil {
 				return nil, err
 			} else {
 				execution.AddTask(newTask)
 			}
-		} else if nodeModel, err := model.GetNode(nodeName); err != nil {
+		} else if nodeModel, err := m.GetNode(nodeName); err != nil {
 			return nil, err
 		} else if nodeModel == nil {
 			return nil, errors.New(fmt.Sprintf("根据节点名称[%s]无法找到节点模型", nodeName))
@@ -261,7 +249,9 @@ func (s *SnakerEngineImpl) CreateFreeTask(instanceId int64, operator string, arg
 	} else if instance == nil {
 		return nil, errors.New(fmt.Sprintf("指定的流程实例[id=%d]已完成或不存在", instanceId))
 	} else {
-		instance.LastUpdator = operator
+		instance.CreatedBy = &Logger{
+			LoggerS: operator,
+		}
 		instance.UpdatedAt = time.Now()
 
 		p := (*s.Process()).GetProcessById(instance.ProcessId)
@@ -302,22 +292,24 @@ func (s *SnakerEngineImpl) executeById(taskId int64, operator string, args map[s
 		args = make(map[string]interface{})
 	}
 
-	if task, err := s.Task().Complete(taskId, operator, args); err != nil  {
+	if task, err := (*s.Task()).CompleteByIdAndOperatorAndArgs(taskId, operator, args); err != nil  {
 		return  nil, err
-	} else if instance, err := s.Query().GetInstance(task.InstanceId); err != nil {
+	} else if instance, err := (*s.Query()).GetInstance(task.InstanceId); err != nil {
 		return  nil, err
 	} else {
-		instance.LastUpdator = operator
+		instance.CreatedBy = &Logger{
+			LoggerS: operator,
+		}
 		instance.UpdatedAt = time.Now()
-		if err = s.Instance().UpdateInstance(instance); err != nil {
+		if err = (*s.Instance()).UpdateInstance(instance); err != nil {
 			return nil, err
 		}
 		// 协办任务完成不产生执行对象
-		if !task.isMarjor {
+		if !task.IsMajor() {
 			return nil, nil
 		}
-		if instance.VariableMap != nil {
-			for k, v := range instance.VariableMap {
+		if instance.Variable != nil {
+			for k, v := range instance.Variable {
 				if _, ok := args[k]; ok {
 
 				} else {
@@ -325,8 +317,8 @@ func (s *SnakerEngineImpl) executeById(taskId int64, operator string, args map[s
 				}
 			}
 		}
-
-		if process, err := s.Process().GetProcessById(instance.ProcessId); err != nil {
+		process := (*s.Process()).GetProcessById(instance.ProcessId)
+		if err := (*s.Process()).Check(process, strconv.FormatInt(instance.ProcessId, 10)); err != nil {
 			return nil, err
 		} else {
 			return &core.Execution{

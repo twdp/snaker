@@ -42,3 +42,7 @@ type Execution struct {
 	// 对于join节点的处理
 	isMerged bool
 }
+
+func (e *Execution) AddTask(task *entity.Task) {
+	e.Tasks.PushBack(task)
+}

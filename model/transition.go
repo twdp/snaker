@@ -1,5 +1,7 @@
 package model
 
+import "tianwei.pro/snaker/core"
+
 type TransitionModel struct {
 
 	// 当前转移路径是否可用
@@ -10,4 +12,18 @@ type TransitionModel struct {
 
 	// 变迁的源节点引用
 	Source *NodeModel
+
+	// 变迁的目标节点name名称
+	To string
+
+	//  变迁的条件表达式，用于decision
+	Expr string
+
+	// 转折点图形数据
+	G string
 }
+
+func (t *TransitionModel) Execute(execution *core.Execution) error {
+	return nil
+}
+
