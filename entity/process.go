@@ -5,6 +5,10 @@ import (
 	"tianwei.pro/snaker/model"
 )
 
+const (
+	ProcessInit = iota
+
+)
 type Process struct {
 
 	Base
