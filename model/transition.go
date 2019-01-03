@@ -1,8 +1,11 @@
 package model
 
-import "tianwei.pro/snaker/core"
+import (
+	"tianwei.pro/snaker/core"
+)
 
 type TransitionModel struct {
+	BaseModel
 
 	// 当前转移路径是否可用
 	Enable bool

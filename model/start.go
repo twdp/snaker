@@ -3,9 +3,9 @@ package model
 import "tianwei.pro/snaker/core"
 
 type StartModel struct {
-
+	NodeModel
 }
 
 func (s *StartModel) Execute(execution *core.Execution) error {
-	return nil
+	return s.runOutTransition(execution)
 }

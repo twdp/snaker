@@ -12,6 +12,11 @@ const (
 	Record
 )
 
+const (
+	PerformtypeAny = iota
+	PerformtypeAll
+)
+
 // 任务实体类
 type Task struct {
 
