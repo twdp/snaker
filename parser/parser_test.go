@@ -63,5 +63,9 @@ func TestParseXml(t *testing.T) {
     </decision>
 </process>
 `
-	fmt.Println(mxj.NewMapXml([]byte(x)))
+	c, _ := mxj.NewMapXml([]byte(x))
+	root := c.Old()
+
+	fmt.Println(root["process"].(map[string]interface{})["-name"])
+
 }
