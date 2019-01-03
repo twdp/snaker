@@ -9,48 +9,7 @@ import (
 	"tianwei.pro/snaker/parser"
 )
 
-// xml 节点信息
-const (
-	rootElement = "process"
-	// map中节点类型
-	elementType = "elementType"
-	// 变迁节点名称
-	nodeTransition = "transition"
 
-	// 节点属性名称
-	attrName = "-name"
-	attrDisplayName = "-displayName"
-	attrInstanceUrl = "-instanceUrl"
-	attrInstanceNoClazz = "-instanceNoClass"
-	attrExpr = "-expr"
-	attrHandleClazz = "-handleClass"
-	attrForm = "-form"
-	attrField = "-field"
-	attrValue = "-value"
-	attrAttr = "-attr"
-	attrType= "-type"
-	attrAssignee = "-assignee"
-	attrAssignmentHandler = "-assignmentHandler"
-	attrPerormType = "-performType"
-	attrTaskType = "-taskType"
-	attrTo = "-to"
-	attrProcessName = "-processName"
-	attrVersion = "-version"
-	attrExpireTime = "-expireTime"
-	attrAutoExecute = "-autoExecute"
-	attrCallback = "-callback"
-	attrReminderTime = "-reminderTime"
-	attrReminderRepeat = "-reminderRepeat"
-	attrClazz = "-clazz"
-	attrMethodName = "-methodName"
-	attrArgs = "-args"
-	attrVar = "-var"
-	attrLayout = "-layout"
-	attrG = "-g"
-	attrOffset = "-offset"
-	attrPreInterceptors = "-preInterceptors"
-	attrPostInterceptors = "-postInterceptors"
-)
 
 type XmlParser struct {
 	// xml 元素解析容器
@@ -63,19 +22,31 @@ func (x *XmlParser) ParseXml(content string) (*model.ProcessModel, error) {
 		return nil, errors.New(fmt.Sprintf("解析xml文件出错, content: %s", content))
 	} else {
 		// 根元素
-		root := c.Old()[rootElement].(map[string]interface{})
-		process := model.NewProcess(root[attrName].(string), root[attrDisplayName].(string))
+		root := c.Old()[parser.RootElement].(map[string]interface{})
+		process := model.NewProcess(root[parser.AttrName].(string), root[parser.AttrDisplayName].(string))
 
 		for k, v := range root {
 			vv := reflect.ValueOf(v)
 			switch vv.Kind() {
 			case reflect.Map:
 				vvv := v.(map[string]interface{})
-				vvv[elementType] = k
+				vvv[parser.ElementType] = k
 				if m, err := x.parseModel(vvv); err != nil {
 					return nil, err
 				} else {
 					process.Nodes.Add(m)
+				}
+			case reflect.Slice:
+				// 节点类型多个时
+				// 是slice类型
+				for _, k := range v.([]interface{}) {
+					vvv := k.(map[string]interface{})
+					vvv[parser.ElementType] = k
+					if m, err := x.parseModel(vvv); err != nil {
+						return nil, err
+					} else {
+						process.Nodes.Add(m)
+					}
 				}
 			}
 		}
@@ -102,5 +73,5 @@ func (x *XmlParser) ParseXml(content string) (*model.ProcessModel, error) {
 
 // 对流程定义xml的节点，根据其节点对应的解析器解析节点内容
 func (x *XmlParser) parseModel(node map[string]interface{}) (*model.NodeModel, error) {
-	return x.elementParserContainer.GetNodeParserFactory(node[elementType].(string)).NewParse().Parse(node)
+	return x.elementParserContainer.GetNodeParserFactory(node[parser.ElementType].(string)).NewParse().Parse(node)
 }

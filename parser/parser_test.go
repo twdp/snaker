@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"github.com/clbanning/mxj"
+	"reflect"
 	"testing"
 	"tianwei.pro/snaker/model"
 )
@@ -61,11 +62,22 @@ func TestParseXml(t *testing.T) {
         <transition displayName="同意" g="" name="agree" offset="0,0" to="end1"/>
         <transition displayName="不同意" g="408,68;172,68" name="disagree" offset="0,0" to="apply"/>
     </decision>
+
+	<decision displayName="decision1" expr="#result" layout="384,118,-1,-1" name="decision1">
+        <transition displayName="同意" g="" name="agree" offset="0,0" to="end1"/>
+        <transition displayName="不同意" g="408,68;172,68" name="disagree" offset="0,0" to="apply"/>
+    </decision>
 </process>
 `
 	c, _ := mxj.NewMapXml([]byte(x))
 	root := c.Old()
-
-	fmt.Println(root["process"].(map[string]interface{})["-name"])
+	vv := reflect.ValueOf(root["process"].(map[string]interface{})["decision"])
+	switch vv.Kind() {
+	case reflect.Map:
+		fmt.Println("map")
+	case reflect.Slice:
+		fmt.Println("slice")
+	}
+	//fmt.Println(root["process"].(map[string]interface{})["-name"])
 
 }
