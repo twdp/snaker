@@ -26,8 +26,8 @@ type AParser struct {
 func (a *AParser) Parse(element map[string]interface{}) (*model.NodeModel, error) {
 	return &model.NodeModel{
 		BaseModel: model.BaseModel{
-			Name: element[attrName].(string),
-			DisplayName: element[attrDisplayName].(string),
+			Name: element[parser.AttrName].(string),
+			DisplayName: element[parser.AttrDisplayName].(string),
 		},
 		Inputs:arraylist.New(),
 		Outputs:arraylist.New(),

@@ -74,6 +74,10 @@ type NodeParser interface {
 	Parse(element map[string]interface{}) (*model.NodeModel, error)
 }
 
+type ModelGen interface {
+	newModel() *model.NodeModel
+}
+
 type DefaultSnakerParserContainer struct {
 	container map[string]NodeParserFactory
 }
@@ -96,29 +100,35 @@ func NewDefaultSnakerParserContainer() *DefaultSnakerParserContainer {
 	}
 }
 
+
 type AbstractNodeParser struct {
 	//model *model.NodeModel
+	Parent ModelGen
 }
 
 func (a *AbstractNodeParser) Parse(element map[string]interface{}) (*model.NodeModel, error) {
-	m := a.newModel()
+	m := a.Parent.newModel()
 	//a.model = model
 	m.Name = element[AttrName].(string)
 	m.DisplayName = element[AttrDisplayName].(string)
 	// interceptor
 
 	v := element[NodeTransition]
-	vv := reflect.ValueOf(v)
-
 	tms := arraylist.New()
-	switch vv.Kind() {
-	case reflect.Map:
-		tms.Add(vv)
-	case reflect.Slice:
-		for _, k := range v.([]interface{}) {
-			tms.Add(k)
+
+	if  v != nil {
+		vv := reflect.ValueOf(v)
+
+		switch vv.Kind() {
+		case reflect.Map:
+			tms.Add(vv)
+		case reflect.Slice:
+			for _, k := range v.([]interface{}) {
+				tms.Add(k)
+			}
 		}
 	}
+
 
 	for _,  te := range tms.Values() {
 		tte := te.(map[string]interface{})
