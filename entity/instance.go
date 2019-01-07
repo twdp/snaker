@@ -7,6 +7,9 @@ type Instance struct {
 
 	ProcessId int64
 
+	// 流程实例内容
+	Content string
+
 	// 流程实例附属变量
 	Variable map[string]interface{}
 }

@@ -1,12 +1,55 @@
-package parser
+package snaker
 
 import (
 	"fmt"
 	"github.com/clbanning/mxj"
+	"github.com/emirpasic/gods/lists/arraylist"
 	"reflect"
 	"testing"
-	"tianwei.pro/snaker/model"
 )
+
+type AParserFactory struct {
+
+
+}
+
+func (a *AParserFactory) NewParse() NodeParser {
+	return &AParser{}
+}
+
+type AParser struct {
+	NodeParser
+}
+
+
+
+func (a *AParser) Parse(element map[string]interface{}) (*NodeModel, error) {
+	return &NodeModel{
+		BaseModel: BaseModel{
+			Name: element[AttrName].(string),
+			DisplayName: element[AttrDisplayName].(string),
+		},
+		Inputs:arraylist.New(),
+		Outputs:arraylist.New(),
+	}, nil
+}
+
+func TestXmlParser_ParseXml(t *testing.T) {
+	x := `<process name="t" displayName="tt">
+		<a name="test" displayName="测试一下">
+		<b/>
+	</a></process>`
+	parse := &XmlParser{
+		elementParserContainer: NewDefaultSnakerParserContainer(),
+	}
+	parse.elementParserContainer.AddParserFactory("a", &AParserFactory{})
+
+	model, err := parse.ParseXml(x)
+	fmt.Println(model, err)
+	fmt.Println(model.Nodes.Size())
+
+}
+
 
 type MockNodeParserFactory struct {
 
@@ -16,8 +59,8 @@ type MockNodeParse struct {
 
 }
 
-func (m *MockNodeParse) Parse(element map[string]interface{}) (*model.NodeModel, error) {
-	return &model.NodeModel{}, nil
+func (m *MockNodeParse) Parse(element map[string]interface{}) (*NodeModel, error) {
+	return &NodeModel{}, nil
 }
 
 func (m *MockNodeParserFactory) NewParse() NodeParser {
@@ -80,4 +123,14 @@ func TestParseXml(t *testing.T) {
 	}
 	//fmt.Println(root["process"].(map[string]interface{})["-name"])
 
+}
+
+func TestStartParserFactory_NewParse(t *testing.T) {
+	startParser := &StartParser{}
+	startParser.AbstractNodeParser.Parent = startParser
+
+	fmt.Println(startParser.Parse(map[string]interface{}{
+		"-name": "dd",
+		"-displayName": "fff",
+	}))
 }
