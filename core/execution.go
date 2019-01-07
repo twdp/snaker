@@ -1,14 +1,13 @@
-package core
+package snaker
 
 import (
 	"container/list"
-	"tianwei.pro/snaker"
 	"tianwei.pro/snaker/entity"
 )
 
 type Execution struct {
 
-	Engine snaker.SnakerEngine
+	Engine SnakerEngine
 
 	// 流程定义对象
 	Process *entity.Process
