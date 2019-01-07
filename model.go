@@ -239,6 +239,7 @@ type ProcessModel struct {
 
 	TaskModels lists.List
 
+	Process *entity.Process
 }
 
 func NewProcess(name, displayName string) *ProcessModel {

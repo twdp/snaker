@@ -1,5 +1,10 @@
 package entity
 
+const (
+	ProcessInit = iota
+
+)
+
 // 流程定义实体类
 type Process struct {
 
