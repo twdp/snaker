@@ -1,4 +1,4 @@
-package snaker
+package entity
 
 // 用户信息
 type Logger struct {

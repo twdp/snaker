@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"tianwei.pro/snaker"
+
+	//"tianwei.pro/snaker"
 	"tianwei.pro/snaker/core"
 )
 
@@ -16,7 +18,7 @@ type DecisionModel struct {
 	Expr string
 
 	// 表达式解析器
-	Expression snaker.Expression
+	//Expression snaker.Expression
 }
 
 func (d *DecisionModel) exec(execution *core.Execution) error {

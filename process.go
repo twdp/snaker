@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"tianwei.pro/snaker/entity"
-	"tianwei.pro/snaker/parse"
+	"tianwei.pro/snaker/parser/xml"
 )
 
 // 流程定义业务类
@@ -47,7 +47,7 @@ type IProcessService interface {
 }
 
 type ProcessService struct {
-	
+	XmlParser *xml.XmlParser
 }
 
 func (p *ProcessService) Check(process *entity.Process, idOrName string) error {
@@ -56,6 +56,7 @@ func (p *ProcessService) Check(process *entity.Process, idOrName string) error {
 	} else if process.Status == entity.ProcessInit {
 		return errors.New(fmt.Sprintf("指定的流程定义[id/name=%s,version=%d]为非活动状态", idOrName, process.Version))
 	}
+	return nil
 }
 
 func (p *ProcessService) SaveProcess(process *entity.Process) error {
@@ -83,7 +84,7 @@ func (p *ProcessService) Deploy(input string) (int64, error) {
 }
 
 func (p *ProcessService) DeployByCreator(input string, creator string) (int64, error) {
-	if model, err := parse.Parse(input); err != nil {
+	if model, err := p.XmlParser.ParseXml(input); err != nil {
 		return 0, err
 	} else {
 		fmt.Println(model)

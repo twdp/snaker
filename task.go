@@ -2,7 +2,6 @@ package snaker
 
 import (
 	"container/list"
-	"tianwei.pro/snaker/core"
 	"tianwei.pro/snaker/entity"
 	"tianwei.pro/snaker/model"
 )
@@ -18,7 +17,7 @@ import (
 type ITaskService interface {
 
 	// 根据任务模型、执行对象创建新的任务
-	CreateTask(task *model.TaskModel, execution *core.Execution) (*list.List,  error)
+	CreateTask(task *model.TaskModel, execution *Execution) (*list.List,  error)
 
 	// 完成指定的任务，删除活动任务记录，创建历史任务
 	CompleteById(id int64) (*entity.Task, error)
@@ -33,7 +32,7 @@ type ITaskService interface {
 	UpdateTask(task *entity.Task) error
 
 	// 根据执行对象、自定义节点模型创建历史任务记录
-	History(execution *core.Execution, model CustomModel) (*entity.HistoryTask, error)
+	//History(execution *Execution, model model.CustomModel) (*entity.HistoryTask, error)
 
 	// 根据历史任务主键id，操作人唤醒历史任务
 	// 该方法会导致流程状态不可控，请慎用

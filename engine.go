@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"tianwei.pro/snaker/core"
 	"tianwei.pro/snaker/entity"
 	"tianwei.pro/snaker/model"
 	"time"
@@ -56,7 +55,7 @@ type SnakerEngine interface {
 	StartInstanceByKeyAndVersionAndOperatorAndArgs(key string, version int, operator string, args map[string]interface{}) (*entity.Instance, error)
 
 	// 根据父执行对象启动子流程实例
-	StartInstanceByExecution(execution *core.Execution) (*entity.Instance, error)
+	StartInstanceByExecution(execution *Execution) (*entity.Instance, error)
 
 	// 根据任务主键ID执行任务
 	ExecuteTaskById(taskId int64) (*list.List, error)
@@ -169,7 +168,7 @@ func (s *SnakerEngineImpl) StartInstanceByKeyAndVersionAndOperatorAndArgs(key st
 
 }
 
-func (s *SnakerEngineImpl) StartInstanceByExecution(execution *core.Execution) (*entity.Instance, error) {
+func (s *SnakerEngineImpl) StartInstanceByExecution(execution *Execution) (*entity.Instance, error) {
 	process := execution.Process
 	if start, err := process.Model.GetStart(); err != nil {
 		return nil, err
@@ -259,7 +258,7 @@ func (s *SnakerEngineImpl) CreateFreeTask(instanceId int64, operator string, arg
 			return nil, err
 		}
 
-		execution := &core.Execution{
+		execution := &Execution{
 			Engine: s,
 			Process: p,
 			Instance: instance,
@@ -287,7 +286,7 @@ func (s *SnakerEngineImpl) startProcess(process *entity.Process, operator string
 	}
 }
 
-func (s *SnakerEngineImpl) executeById(taskId int64, operator string, args map[string]interface{}) (*core.Execution, error) {
+func (s *SnakerEngineImpl) executeById(taskId int64, operator string, args map[string]interface{}) (*Execution, error) {
 	if args == nil {
 		args = make(map[string]interface{})
 	}
@@ -321,7 +320,7 @@ func (s *SnakerEngineImpl) executeById(taskId int64, operator string, args map[s
 		if err := (*s.Process()).Check(process, strconv.FormatInt(instance.ProcessId, 10)); err != nil {
 			return nil, err
 		} else {
-			return &core.Execution{
+			return &Execution{
 				Engine: s,
 				Process: process,
 				Instance: instance,
@@ -334,12 +333,12 @@ func (s *SnakerEngineImpl) executeById(taskId int64, operator string, args map[s
 
 }
 
-func (s *SnakerEngineImpl) execute(process *entity.Process, operator string, args map[string]interface{}, parentId int64, parentNodeName string) (*core.Execution, error) {
+func (s *SnakerEngineImpl) execute(process *entity.Process, operator string, args map[string]interface{}, parentId int64, parentNodeName string) (*Execution, error) {
 	if instance, err := (*s.Instance()).CreateInstanceUseParentInfo(process, operator, args, parentId, parentNodeName); nil != nil {
 		return nil, err
 	} else {
 		fmt.Println(instance)
-		current := &core.Execution{
+		current := &Execution{
 			Engine: s,
 			Process: process,
 			Instance: instance,

@@ -11,7 +11,7 @@ type BaseModel struct {
 	Name string
 
 	// 显示名称
-	Display string
+	DisplayName string
 }
 
 // 将执行对象execution交给具体的处理器处理

@@ -1,8 +1,6 @@
 package entity
 
-import (
-	"tianwei.pro/snaker"
-)
+import "tianwei.pro/snaker"
 
 // 流程工作单实体类（一般称为流程实例）
 type Instance struct {

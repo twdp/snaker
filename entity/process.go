@@ -2,7 +2,6 @@ package entity
 
 import (
 	"tianwei.pro/snaker"
-	"tianwei.pro/snaker/model"
 )
 
 const (
@@ -34,7 +33,7 @@ type Process struct {
 	Status int8
 
 	// 流程定义模型
-	Model *model.ProcessModel
+	//Model *model.ProcessModel
 
 	CreatedBy *snaker.Logger
 
@@ -42,9 +41,9 @@ type Process struct {
 	Content string
 }
 
-func (p *Process) SetModel(processModel *model.ProcessModel) {
-	p.Model = processModel
-	p.Name = processModel.Name
-	p.DisplayName = processModel.DisplayName
-	p.InstanceUrl = processModel.InstanceUrl
-}
+//func (p *Process) SetModel(processModel *model.ProcessModel) {
+//	//p.Model = processModel
+//	p.Name = processModel.Name
+//	p.DisplayName = processModel.DisplayName
+//	p.InstanceUrl = processModel.InstanceUrl
+//}

@@ -1,6 +1,8 @@
 package model
 
-import "tianwei.pro/snaker/core"
+import (
+	"tianwei.pro/snaker/core"
+)
 
 type CustomModel struct {
 	WorkModel

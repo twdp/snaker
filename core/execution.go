@@ -1,4 +1,4 @@
-package snaker
+package core
 
 import (
 	"container/list"
@@ -7,7 +7,7 @@ import (
 
 type Execution struct {
 
-	Engine SnakerEngine
+	//Engine SnakerEngine
 
 	// 流程定义对象
 	Process *entity.Process

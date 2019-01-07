@@ -2,7 +2,6 @@ package entity
 
 import (
 	"tianwei.pro/snaker"
-	"tianwei.pro/snaker/model"
 	"time"
 )
 
@@ -64,7 +63,7 @@ type Task struct {
 	Variable map[string]interface{}
 
 	// 模型对象
-	model *model.TaskModel
+	//model *model.TaskModel
 }
 
 func (t *Task) IsMajor() bool {
