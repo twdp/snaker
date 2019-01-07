@@ -1,5 +1,7 @@
 package model
 
+import "tianwei.pro/snaker/core"
+
 type TransitionModel struct {
 	BaseModel
 
@@ -20,4 +22,7 @@ type TransitionModel struct {
 
 	// 转折点图形数据
 	// G string
+}
+func (t *TransitionModel) Execute(execution *core.Execution) error {
+	return nil
 }
