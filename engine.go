@@ -7,13 +7,12 @@ import (
 )
 
 const (
-	ProcessKey = "snaker.process"
+	ProcessKey  = "snaker.process"
 	InstanceKey = "snaker.instance"
-	TaskKey = "snaker.task"
+	TaskKey     = "snaker.task"
 )
 
 type Engine interface {
-
 	// 获取process服务
 	Process() IProcessService
 
@@ -38,7 +37,6 @@ type Engine interface {
 
 // snakerEngine实现类
 type SnakerEngineImpl struct {
-
 	// 流程定义业务类
 	processService IProcessService
 
@@ -59,7 +57,7 @@ type SnakerEngineImpl struct {
 
 func NewEngine() Engine {
 	return &SnakerEngineImpl{
-		di: New(),
+		di:             New(),
 		processService: NewProcessService(),
 	}
 }
@@ -70,7 +68,7 @@ func (s *SnakerEngineImpl) RegisterService(name string, instance interface{}) {
 }
 
 // 根据name获取service
-func (s *SnakerEngineImpl)  GetByName(name string) interface{} {
+func (s *SnakerEngineImpl) GetByName(name string) interface{} {
 	return s.di.GetByName(name)
 }
 
@@ -79,7 +77,6 @@ func (s *SnakerEngineImpl) GetByNameAndType(name string, t interface{}) interfac
 	return s.di.GetByType(t)
 }
 
-
 //
 func (s *SnakerEngineImpl) Process() IProcessService {
 	if nil == s.processService {
@@ -87,6 +84,7 @@ func (s *SnakerEngineImpl) Process() IProcessService {
 	}
 	return s.processService
 }
+
 //
 //func (s *SnakerEngineImpl) Query() *IQueryService {
 //	return nil
@@ -153,16 +151,16 @@ func (s *SnakerEngineImpl) execute(process *entity.Process, operator string, arg
 	//if instance, err := (*s.Instance()).CreateInstanceUseParentInfo(process, operator, args, parentId, parentNodeName); nil != nil {
 	//	return nil, err
 	//} else {
-		current := &Execution{
-			Engine: s,
-			Process: process,
-			Instance: &entity.Instance{},
-			Args: args,
-			Operator: operator,
-			Tasks: arraylist.New(),
-		}
+	current := &Execution{
+		Engine:   s,
+		Process:  process,
+		Instance: &entity.Instance{},
+		Args:     args,
+		Operator: operator,
+		Tasks:    arraylist.New(),
+	}
 
-		return current, nil
+	return current, nil
 	//}
 
 }
