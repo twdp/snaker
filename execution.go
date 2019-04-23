@@ -1,33 +1,16 @@
 package snaker
 
-import (
-	"github.com/emirpasic/gods/lists"
-	"tianwei.pro/snaker/entity"
-)
-
-// 流程执行过程中所传递的执行对象，其中包含流程定义、流程模型、流程实例对象、执行参数、返回的任务列表
+//流程执行体
 type Execution struct {
-
-	// @Deprecated
-	Process *entity.Process
-
-	// 当前流程执行的流程模型
-	ProcessModel *ProcessModel
-
-	Engine Engine
-
-	// 执行时传递的参数
-	Args map[string]interface{}
-
-	Operator string
-
-	ParentInstance *entity.Instance
-
-	Instance *entity.Instance
-
-	ParentNodeName string
-
-	Tasks lists.List
-
-	//Task *entity.Task
+	Engine         *Engine                //引擎
+	Process        *Process               //流程定义对象
+	Order          *Order                 //流程实例对象
+	ParentOrder    *Order                 //父流程实例
+	ParentNodeName string                 //父流程实例节点名称
+	ChildOrderId   int64                 //子流程实例节点名称
+	Args           map[string]interface{} //执行参数
+	Operator       string                 //操作人
+	Task           *Task                  //任务
+	Tasks          []*Task                //返回的任务列表
+	IsMerged       bool                   //是否已合并,针对join节点的处理
 }

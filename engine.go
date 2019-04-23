@@ -1,166 +1,149 @@
 package snaker
 
-import (
-	"github.com/emirpasic/gods/lists/arraylist"
-	"strconv"
-	"tianwei.pro/snaker/entity"
-)
-
-const (
-	ProcessKey  = "snaker.process"
-	InstanceKey = "snaker.instance"
-	TaskKey     = "snaker.task"
-)
-
-type Engine interface {
-	// 获取process服务
-	Process() IProcessService
-
-	// 注册
-	RegisterService(name string, instance interface{})
-
-	// 根据name获取service
-	GetByName(name string) interface{}
-
-	// 根据name和type获取实例
-	GetByNameAndType(name string, t interface{}) interface{}
-
-	// 根据流程定义ID启动流程实例
-	StartInstanceById(id int64) (*entity.Instance, error)
-
-	// 根据流程定义id和操作人|flag启动流程实例
-	StartInstanceByIdAndOperator(id int64, operator string) (*entity.Instance, error)
-
-	// 根据流程定义id和操作人|flag和参数启动流程实例
-	StartInstanceByIdAndOperatorAndArgs(id int64, operator string, args map[string]interface{}) (*entity.Instance, error)
+type Engine struct {
+	ProcessService //流程定义业务类
 }
 
-// snakerEngine实现类
-type SnakerEngineImpl struct {
-	// 流程定义业务类
-	processService IProcessService
-
-	//// 流程实例业务类
-	//instanceService *IInstanceService
-	//
-	//// 任务业务类
-	//taskService *ITaskService
-	//
-	//// 查询业务类
-	//queryService *IQueryService
-	//
-	//// 管理业务类
-	//managerService *IManagerService
-
-	di *Container
+//通过流程ID开始实例
+func (p *Engine) StartInstanceById(id int64, operator string, args map[string]interface{}) *Order {
+	process := p.GetProcessById(id)
+	return p.StartProcess(process, operator, args)
 }
 
-func NewEngine() Engine {
-	return &SnakerEngineImpl{
-		di:             New(),
-		processService: NewProcessService(),
+//通过流程NAME开始实例
+func (p *Engine) StartInstanceByName(name string, version int, operator string, args map[string]interface{}) *Order {
+	process := p.GetProcessByVersion(name, version)
+	return p.StartProcess(process, operator, args)
+}
+
+//通过执行体Execution开始实例
+func (p *Engine) StartInstanceByExecution(execution *Execution) *Order {
+	process := execution.Process
+	start := process.Model.GetStart()
+	current := p.ExecuteByProcess(process, execution.Operator, execution.Args, execution.ParentOrder.Id, execution.ParentNodeName)
+	start.Execute(current)
+	return current.Order
+}
+
+//开始流程
+func (p *Engine) StartProcess(process *Process, operator string, args map[string]interface{}) *Order {
+	execution := p.ExecuteByProcess(process, operator, args, 0, "")
+	if process.Model != nil {
+		start := process.Model.GetStart()
+		start.Execute(execution)
 	}
+	return execution.Order
 }
 
-// 注册
-func (s *SnakerEngineImpl) RegisterService(name string, instance interface{}) {
-	s.di.Provide(name, instance)
-}
-
-// 根据name获取service
-func (s *SnakerEngineImpl) GetByName(name string) interface{} {
-	return s.di.GetByName(name)
-}
-
-// 根据name和type获取实例
-func (s *SnakerEngineImpl) GetByNameAndType(name string, t interface{}) interface{} {
-	return s.di.GetByType(t)
-}
-
-//
-func (s *SnakerEngineImpl) Process() IProcessService {
-	if nil == s.processService {
-		panic("IProcessService没有实例")
+//执行流程
+func (p *Engine) ExecuteByProcess(process *Process, operator string, args map[string]interface{}, parentId int64, parentNodeName string) *Execution {
+	order := CreateOrder(process, operator, args, parentId, parentNodeName)
+	execution := &Execution{
+		Engine:   p,
+		Process:  process,
+		Order:    order,
+		Operator: operator,
+		Args:     args,
 	}
-	return s.processService
+	return execution
 }
 
-//
-//func (s *SnakerEngineImpl) Query() *IQueryService {
-//	return nil
-//}
-//
-//func (s *SnakerEngineImpl) Manager() *IManagerService {
-//	return nil
-//}
-//
-//func (s *SnakerEngineImpl) Instance() *IInstanceService {
-//	if nil == s.instanceService {
-//		panic("IInstanceService没有实例")
-//	}
-//	return s.instanceService
-//}
+//通过任务ID，执行任务
+func (p *Engine) GetExecutionByTaskId(id int64, operator string, args map[string]interface{}) *Execution {
+	task := CompleteTask(id, operator, args)
 
-//func (s *SnakerEngineImpl) Task() *ITaskService {
-//	if nil == s.taskService {
-//		panic("ITaskService没有实例")
-//	}
-//	return s.taskService
-//}
-
-func (s *SnakerEngineImpl) StartInstanceById(id int64) (*entity.Instance, error) {
-	return s.StartInstanceByIdAndOperatorAndArgs(id, "", nil)
-}
-
-func (s *SnakerEngineImpl) StartInstanceByIdAndOperator(id int64, operator string) (*entity.Instance, error) {
-	return s.StartInstanceByIdAndOperatorAndArgs(id, operator, nil)
-}
-
-func (s *SnakerEngineImpl) StartInstanceByIdAndOperatorAndArgs(id int64, operator string, args map[string]interface{}) (*entity.Instance, error) {
-	if nil == args {
-		args = make(map[string]interface{})
-	}
-	if process, err := s.Process().GetProcessById(id); nil != err {
-		return nil, err
-	} else if err = s.Process().Check(process, strconv.FormatInt(id, 10)); err != nil {
-		return nil, err
-	} else if m, err := s.Process().ParseModel(process); err != nil {
-		return nil, err
-	} else {
-		return s.startProcess(m, operator, args)
-	}
-}
-
-func (s *SnakerEngineImpl) startProcess(m *ProcessModel, operator string, args map[string]interface{}) (*entity.Instance, error) {
-	if execution, err := s.execute(m.Process, operator, args, 0, ""); nil != err {
-		return nil, err
-	} else {
-		if start, err := m.GetStart(); err != nil {
-			return nil, err
+	order := &Order{}
+	if order.GetOrderById(task.OrderId) {
+		order.LastUpdator = operator
+		if task.TaskType == TO_ASSIST { //协办任务完成不产生执行对象
+			return nil
 		} else {
-			if err = start.Execute(execution); err != nil {
-				return nil, err
+			variable := JsonToMap(order.Variable)
+			for k, v := range variable {
+				if _, ok := args[k]; !ok { //判断 key 是否存在
+					args[k] = v
+				}
+			}
+
+			process := &Process{}
+			if process.GetProcessById(order.ProcessId) {
+
+				execution := &Execution{
+					Engine:   p,
+					Process:  process,
+					Order:    order,
+					Operator: operator,
+					Task:     task,
+					Args:     args,
+				}
+				return execution
+			} else {
+				return nil
 			}
 		}
-
-		return execution.Instance, nil
+	} else {
+		return nil
 	}
 }
 
-func (s *SnakerEngineImpl) execute(process *entity.Process, operator string, args map[string]interface{}, parentId int64, parentNodeName string) (*Execution, error) {
-	//if instance, err := (*s.Instance()).CreateInstanceUseParentInfo(process, operator, args, parentId, parentNodeName); nil != nil {
-	//	return nil, err
-	//} else {
-	current := &Execution{
-		Engine:   s,
-		Process:  process,
-		Instance: &entity.Instance{},
-		Args:     args,
-		Operator: operator,
-		Tasks:    arraylist.New(),
+//执行并且跳到某个任务
+func (p *Engine) ExecuteTask(id int64, operator string, args map[string]interface{}) []*Task {
+	execution := p.GetExecutionByTaskId(id, operator, args)
+	if execution == nil {
+		return nil
 	}
+	processModel := execution.Process.Model
+	if processModel != nil {
+		nodeModel := processModel.GetNode(execution.Task.TaskName)
+		//将执行对象交给该任务对应的节点模型执行
+		nodeModel.Execute(execution)
+	}
+	return execution.Tasks
+}
 
-	return current, nil
-	//}
+//执行并且跳到某个任务
+func (p *Engine) ExecuteAndJumpTask(id int64, operator string, args map[string]interface{}, nodeName string) []*Task {
+	execution := p.GetExecutionByTaskId(id, operator, args)
+	if execution != nil {
+		model := execution.Process.Model
+		if nodeName == "" {
+			task := RejectTask(model, execution.Task)
+			execution.Tasks = append(execution.Tasks, task)
+		} else {
+			nodeModel := model.GetNode(nodeName)
+			tm := &TransitionModel{
+				Target:  nodeModel,
+				Enabled: true,
+			}
+			tm.Execute(execution)
+		}
+		return execution.Tasks
+	}
+	return []*Task{}
+}
 
+//根据流程实例ID，操作人ID，参数列表按照节点模型model创建新的自由任务
+func (p *Engine) CreateFreeTask(orderId int64, operator string, args map[string]interface{}, model *TaskModel) []*Task {
+	order := &Order{}
+	if order.GetOrderById(orderId) {
+		order.LastUpdator = operator
+
+		process := p.GetProcessById(order.Id)
+		execution := &Execution{
+			Engine:   p,
+			Process:  process,
+			Order:    order,
+			Args:     args,
+			Operator: operator,
+		}
+		return CreateTask(model, execution)
+	}
+	return nil
+}
+
+//新建引擎
+func NewEngineByConfig() *Engine {
+	engine := &Engine{}
+	engine.InitProcessService()
+	return engine
 }
