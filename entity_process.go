@@ -10,7 +10,7 @@ type Process struct {
 	BaseIdModel
 
 	Version        int                              //版本
-	Name           string `orm:"size(100) index"`   //流程定义名称
+	Name           string `orm:"size(100);index"`   //流程定义名称
 	DisplayName    string `orm:"size(200)"`         //流程定义显示名称
 	InstanceAction string `orm:"size(200)"`         //当前流程的实例Action,(Web为URL,一般为流程第一步的URL;APP需要自定义),该字段可以直接打开流程申请的表单
 	State          FLOW_STATUS                      //状态

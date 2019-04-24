@@ -11,8 +11,8 @@ type HistoryTask struct {
 	BaseIdModel
 
 	OrderId      int64  `orm:"index"`                   //流程实例ID
-	TaskName     string `orm:"size(100) notnull index"` //任务名称
-	DisplayName  string `orm:"size(200) notnull"`       //任务显示名称
+	TaskName     string `orm:"size(100);index"` //任务名称
+	DisplayName  string `orm:"size(200)"`       //任务显示名称
 	PerformType  PERFORM_ORDER                          //任务参与方式
 	TaskType     TASK_ORDER                             //任务类型
 	Operator     string `orm:"size(36)"`                //任务处理者ID

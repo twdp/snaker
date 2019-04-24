@@ -10,7 +10,7 @@ import (
 type HistoryOrder struct {
 	BaseIdModel
 
-	ProcessId  int64  `orm:"notnull index"` //流程定义ID
+	ProcessId  int64  `orm:"index"` //流程定义ID
 	Creator    string `orm:"varchar(36)"`   //流程实例创建者ID
 	ParentId   int64  `orm:"index"`         //流程实例为子流程时，该字段标识父流程实例ID
 	ExpireTime time.Time     `orm:"null"`                //流程实例期望完成时间

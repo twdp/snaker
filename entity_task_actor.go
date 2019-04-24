@@ -9,7 +9,7 @@ import (
 type TaskActor struct {
 	BaseIdModel                             //主键ID
 	TaskId  int64                           //任务ID
-	ActorId string `orm:"size(36) notnull"` //参与者ID
+	ActorId string `orm:"size(36)"` //参与者ID
 
 	BaseTimeModel
 }

@@ -10,8 +10,8 @@ import (
 type Surrogate struct {
 	BaseIdModel
 
-	ProcessName string `orm:"size(36) notnull"`       //流程名称
-	Operator    string `orm:"size(36) notnull index"` //授权人
+	ProcessName string `orm:"size(36)"`       //流程名称
+	Operator    string `orm:"size(36);index"` //授权人
 	Surrogate   string `orm:"size(36)"`               //代理人
 	OpTime      time.Time                             //操作时间
 	StartTime   time.Time                             //开始时间
